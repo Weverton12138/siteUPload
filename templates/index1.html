@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeShare</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #00ff00;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Animated background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(45deg, #000 0%, #1a1a1a 50%, #000 100%);
+    }
+
+    .bg-animation::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, #00ff0008 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, #ff000008 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, #0088ff08 0%, transparent 50%);
+      animation: pulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.7; }
+    }
+
+    /* Matrix rain effect */
+    .matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.1;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      margin-bottom: 20px;
+      background: linear-gradient(45deg, #00ff00, #00ffff, #ff0080);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px #00ff0050;
+      animation: glow 2s ease-in-out infinite alternate;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
+
+    @keyframes glow {
+      from { filter: brightness(1) drop-shadow(0 0 10px #00ff00); }
+      to { filter: brightness(1.2) drop-shadow(0 0 20px #00ffff); }
+    }
+
+    nav {
+      background: rgba(0, 255, 0, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid #00ff0030;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #00ff00;
+      text-decoration: none;
+      padding: 12px 25px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    nav a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #00ff0020, transparent);
+      transition: left 0.5s;
+    }
+
+    nav a:hover {
+      border-color: #00ff00;
+      color: #000;
+      background: #00ff00;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 255, 0, 0.3);
+    }
+
+    nav a:hover::before {
+      left: 100%;
+    }
+
+    .section {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00ff0030;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ff00, transparent);
+      animation: scan 3s linear infinite;
+    }
+
+    @keyframes scan {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .section h2 {
+      color: #00ffff;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .terminal {
+      background: #000;
+      border: 1px solid #00ff00;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      color: #00ff00;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal::before {
+      content: '● ● ●';
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      color: #ff0000;
+      font-size: 12px;
+    }
+
+    .terminal p {
+      margin-top: 25px;
+      animation: typewriter 3s steps(40) infinite;
+    }
+
+    @keyframes typewriter {
+      0% { width: 0; }
+      50% { width: 100%; }
+      100% { width: 0; }
+    }
+
+    #stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat {
+      background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 255, 0.1));
+      border: 2px solid #00ff0050;
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .stat:hover {
+      transform: translateY(-10px) scale(1.05);
+      border-color: #00ff00;
+      box-shadow: 0 20px 40px rgba(0, 255, 0, 0.2);
+    }
+
+    .stat::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, #00ff0010, transparent);
+      animation: rotate 4s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .stat h3 {
+      font-size: 3rem;
+      color: #00ff00;
+      text-shadow: 0 0 20px #00ff00;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat p {
+      color: #00ffff;
+      font-weight: bold;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .upload-area {
+      border: 3px dashed #00ff00;
+      border-radius: 15px;
+      padding: 60px;
+      text-align: center;
+      background: linear-gradient(45deg, rgba(0, 255, 0, 0.05), rgba(0, 255, 255, 0.05));
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-area::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, #00ff0020, transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .upload-area:hover {
+      border-color: #00ffff;
+      transform: scale(1.02);
+      background: linear-gradient(45deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 255, 0.1));
+    }
+
+    .upload-area:hover::before {
+      opacity: 1;
+    }
+
+    .upload-area.dragover {
+      border-color: #ff0080;
+      background: linear-gradient(45deg, rgba(255, 0, 128, 0.1), rgba(0, 255, 255, 0.1));
+      animation: pulse-border 0.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0% { border-width: 3px; }
+      50% { border-width: 6px; }
+      100% { border-width: 3px; }
+    }
+
+    .upload-area p {
+      color: #00ffff;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: linear-gradient(45deg, #00ff00, #00ffff);
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(0, 255, 0, 0.4);
+      filter: brightness(1.1);
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:active {
+      transform: translateY(-1px);
+    }
+
+    #fileList {
+      margin-top: 30px;
+    }
+
+    .file-item {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid #00ff0030;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .file-item:hover {
+      border-color: #00ff00;
+      background: rgba(0, 255, 0, 0.05);
+      transform: translateX(10px);
+    }
+
+    .file-item .icon {
+      font-size: 2rem;
+      color: #00ffff;
+    }
+
+    .file-info {
+      flex: 1;
+    }
+
+    .file-info strong {
+      color: #00ff00;
+      font-size: 1.1rem;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .file-actions a {
+      background: linear-gradient(45deg, #00ff00, #00ffff);
+      color: #000;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .file-actions a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+    }
+
+    .file-actions button {
+      background: linear-gradient(45deg, #ff0080, #ff6600);
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+
+    /* Glitch effect for headings */
+    .glitch {
+      position: relative;
+      animation: glitch 2s infinite;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glitch::before {
+      animation: glitch-1 0.5s infinite;
+      color: #ff0080;
+      z-index: -1;
+    }
+
+    .glitch::after {
+      animation: glitch-2 0.5s infinite;
+      color: #00ffff;
+      z-index: -2;
+    }
+
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+
+    @keyframes glitch-1 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(2px, -2px); }
+      40% { transform: translate(-2px, 2px); }
+      60% { transform: translate(-2px, -2px); }
+      80% { transform: translate(2px, 2px); }
+    }
+
+    @keyframes glitch-2 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, -2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(-2px, 2px); }
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      nav {
+        gap: 15px;
+      }
+      
+      nav a {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+      }
+      
+      .file-item {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .upload-area {
+        padding: 40px 20px;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, #00ff00, #00ffff);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(45deg, #00ffff, #ff0080);
+    }
+
+    /* Loading animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #00ff0030;
+      border-radius: 50%;
+      border-top-color: #00ff00;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+</head>
+<body>
+  <div class="bg-animation"></div>
+  <canvas class="matrix" id="matrixCanvas"></canvas>
+  
+  <div class="container">
+    <h1 class="glitch" data-text="CodeShare">CodeShare</h1>
+    <nav>
+      <a href="/">🏠 HOME</a>
+      <a href="/#upload">📤 UPLOAD</a>
+      <a href="/chat">💬 CHAT</a>
+      <a href="/#tools">🛠️ TOOLS</a>
+      <a href="/#contact">📡 CONTACT</a>
+    </nav>
+
+    <section id="home" class="section">
+      <div class="terminal">
+        <p>root@hackerblackhat:~$ echo "Bem-vindo ao underground hub"</p>
+      </div>
+    </section>
+
+    <section id="stats">
+      <div class="stat">
+        <h3 id="filesCount">{{ files|length }}</h3>
+        <p>ARQUIVOS UPLOADED</p>
+      </div>
+      <div class="stat">
+        <h3 id="usersOnline">1</h3>
+        <p>HACKERS ONLINE</p>
+      </div>
+      <div class="stat">
+        <h3 id="totalDownloads">0</h3>
+        <p>TOTAL DOWNLOADS</p>
+      </div>
+    </section>
+
+    <section id="upload" class="section">
+      <h2 class="glitch" data-text="📁 Upload de Arquivos">📁 Upload de Arquivos</h2>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" multiple style="display:none;">
+        <p>🚀 Arraste arquivos aqui ou clique para selecionar</p>
+        <button onclick="document.getElementById('fileInput').click()">Selecionar Arquivos</button>
+      <div id="fileList">
+  {% for file in files_info %}
+  <div class="file-item">
+    <span class="icon">📄</span>
+    <div class="file-info">
+      <strong>{{ file.name }}</strong>
+      <p style="font-size: 0.8rem; color:#00ffff;">
+        👤 {{ file.uploader }} | {{ file.upload_time }}
+      </p>
+    </div>
+    <div class="file-actions">
+      <a href="/downloads/{{ file.name }}" onclick="downloadFile('{{ file.name }}')">DOWNLOAD</a>
+      {% if file.can_delete %}
+        <button onclick="deleteFile('{{ file.name }}', this)">DELETE</button>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+    </section>
+
+    <section id="chat" class="section">
+      <h2 class="glitch" data-text="💬 Hacker Chat Room">💬 Hacker Chat Room</h2>
+      <p style="font-size: 1.2rem; color: #00ffff; margin-bottom: 20px;">
+        🔥 Entre no chat subterrâneo e conecte-se com outros hackers!
+      </p>
+      <a href="/chat" style="display: inline-block; background: linear-gradient(45deg, #ff0080, #00ffff); color: #000; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; transition: all 0.3s ease;">
+        🚀 ENTRAR NO CHAT
+      </a>
+    </section>
+
+    <section id="tools" class="section">
+      <h2 class="glitch" data-text="🛠️ Tools">🛠️ Tools</h2>
+      <p style="font-size: 1.1rem; color: #00ffff;">
+        🔧 Repositório de ferramentas underground para hackers éticos
+      </p>
+      <div style="margin-top: 20px; padding: 20px; background: rgba(0, 255, 0, 0.05); border-radius: 10px; border: 1px solid #00ff0030;">
+        <p style="color: #ff6600;">⚠️ Em desenvolvimento - Novas tools chegando em breve!</p>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <h2 class="glitch" data-text="📡 Contato">📡 Contato</h2>
+      <p style="font-size: 1.1rem; color: #00ffff;">
+        🔐 Entre em contato pelo canal seguro para colaborações underground
+      </p>
+      <div style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="background: rgba(0, 255, 0, 0.05); padding: 15px; border-radius: 8px; border: 1px solid #00ff0030;">
+          <strong style="color: #00ff00;">📧 Email:</strong> 
+          <span style="color: #00ffff;">vitoriawevo@gmail.com</span>
+        </div>
+        <div style="background: rgba(0, 255, 255, 0.05); padding: 15px; border-radius: 8px; border: 1px solid #00ffff30;">
+          <strong style="color: #00ffff;">💻 IRC:</strong> 
+          <span style="color: #00ff00;">#hackerblackhat</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Matrix rain effect
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+    const matrixArray = matrix.split("");
+
+    const fontSize = 10;
+    const columns = canvas.width / fontSize;
+
+    const drops = [];
+    for(let x = 0; x < columns; x++) {
+      drops[x] = 1;
+    }
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = '#00ff00';
+      ctx.font = fontSize + 'px monospace';
+      
+      for(let i = 0; i < drops.length; i++) {
+        const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        
+        if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 35);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Socket.io functionality (mantém toda funcionalidade original)
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('🚀 Conectado ao servidor SocketIO');
+    });
+
+    socket.on('user_count', (count) => {
+      document.getElementById('usersOnline').textContent = count;
+    });
+
+    function handleFiles(files) {
+      const uploadArea = document.getElementById('uploadArea');
+      uploadArea.innerHTML = '<div class="loading"></div><p>Uploading...</p>';
+      
+      Array.from(files).forEach(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/upload', { method: 'POST', body: formData })
+          .then(res => res.text())
+          .then(txt => {
+            console.log(txt);
+            setTimeout(() => window.location.reload(), 1000);
+          })
+          .catch(err => {
+            alert('❌ Erro ao enviar: ' + err);
+            location.reload();
+          });
+      });
+    }
+
+    document.getElementById('fileInput').addEventListener('change', e => {
+      handleFiles(e.target.files);
+    });
+
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { 
+      e.preventDefault(); 
+      uploadArea.classList.add('dragover'); 
+    });
+    
+    uploadArea.addEventListener('dragleave', e => {
+      uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    function downloadFile(filename) {
+      const d = document.getElementById('totalDownloads');
+      d.textContent = (parseInt(d.textContent) + 1).toString();
+      
+      // Visual feedback
+      d.style.color = '#ff0080';
+      d.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        d.style.color = '#00ff00';
+        d.style.transform = 'scale(1)';
+      }, 300);
+    }
+
+    function deleteFile(filename, btn) {
+      if(confirm('🗑️ Deletar este arquivo?')) {
+        btn.textContent = 'DELETING...';
+        btn.disabled = true;
+        
+        fetch(`/delete/${encodeURIComponent(filename)}`, { method:'DELETE' })
+          .then(res => res.json())
+          .then(data => {
+            if(data.status === 'ok') {
+              const fileItem = btn.closest('.file-item');
+              fileItem.style.transform = 'translateX(-100%)';
+              fileItem.style.opacity = '0';
+              setTimeout(() => fileItem.remove(), 300);
+            } else {
+              alert('❌ ' + data.message);
+              btn.textContent = 'DELETE';
+              btn.disabled = false;
+            }
+          })
+          .catch(err => {
+            alert('❌ Erro: ' + err);
+            btn.textContent = 'DELETE';
+            btn.disabled = false;
+          });
+      }
+    }
+
+    // Smooth scrolling for navigation
+    document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Add some interactive effects
+    document.querySelectorAll('.stat').forEach(stat => {
+      stat.addEventListener('mouseenter', () => {
+        stat.style.borderColor = '#ff0080';
+      });
+      
+      stat.addEventListener('mouseleave', () => {
+        stat.style.borderColor = '#00ff0050';
+      });
+    });
+  </script>
+</body>
+</html>

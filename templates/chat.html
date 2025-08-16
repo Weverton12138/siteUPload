@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKER CHAT ROOM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='static.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>💬 HACKER CHAT ROOM</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">HOME</a>
+            <a href="{{ url_for('index') }}#upload">UPLOAD</a>
+            <a href="{{ url_for('chat') }}">CHAT</a>
+            <a href="{{ url_for('index') }}#tools">TOOLS</a>
+            <a href="{{ url_for('index') }}#contact">CONTACT</a>
+        </nav>
+
+        <div id="chat">
+            <div class="chat-area">
+                <div class="user-info">
+                    <span>👤 Usuário: <span id="currentUserDisplay">ANÔNIMO</span></span>
+                    <input type="text" id="usernameInput" placeholder="DEFINIR NOME">
+                    <button onclick="setUsername()">DEFINIR NOME</button>
+                    <button onclick="clearChat()">LIMPAR</button>
+                    <span>Usuários Online: <span id="usersOnline">1</span></span>
+                </div>
+                <div id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="ENVIAR MENSAGEM">
+                    <button onclick="sendMessage()">ENVIAR</button>
+                </div>
+                <div class="commands">
+                    <p>💡 Comandos especiais:</p>
+                    <ul>
+                        <li>• /clear - Limpa o chat</li>
+                        <li>• /time - Mostra horário atual</li>
+                        <li>• /help - Lista de comandos</li>
+                        <li>• /status - Status do sistema</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = 'ANÔNIMO';
+        let chatMessages = [];
+
+        // Conectar ao servidor SocketIO (mesma origem)
+        const socket = io();
+
+        socket.on('connect', () => {
+            console.log('Conectado ao servidor SocketIO');
+        });
+
+        socket.on('user_message', (data) => {
+            chatMessages.push(data);
+            addMessageToChat(data);
+        });
+
+        socket.on('system_message', (data) => {
+            chatMessages.push(data);
+            addMessageToChat(data);
+        });
+
+        socket.on('clear_chat', () => {
+            clearChat();
+        });
+
+        socket.on('user_count', (count) => {
+            document.getElementById('usersOnline').textContent = count;
+        });
+
+        function setUsername() {
+            const input = document.getElementById('usernameInput');
+            const username = input.value.trim();
+            if (username) {
+                const oldUser = currentUser;
+                currentUser = username.toUpperCase();
+                document.getElementById('currentUserDisplay').textContent = currentUser;
+                input.value = '';
+                socket.emit('message', {
+                    user: 'SYSTEM',
+                    text: `${oldUser} mudou o nome para ${currentUser}`,
+                    type: 'system'
+                });
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (message) {
+                socket.emit('message', {
+                    user: currentUser,
+                    text: message,
+                    type: message.startsWith('/') ? 'system' : 'user'
+                });
+                input.value = '';
+            }
+        }
+
+        function addMessageToChat(message) {
+            const chatContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            let userColor = '#00ffff';
+            if (message.type === 'system') {
+                userColor = '#ff6600';
+            } else if (message.user === currentUser) {
+                userColor = '#00ff00';
+            }
+            messageDiv.innerHTML = `
+                <strong style="color: ${userColor}">${escapeHtml(message.user)}</strong>
+                <p>${escapeHtml(message.text)}</p>
+                <span class="time">${message.time || ''}</span>
+            `;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function clearChat() {
+            document.getElementById('chatMessages').innerHTML = '';
+            chatMessages = [];
+            socket.emit('message', { user: 'SYSTEM', text: `/clear`, type: 'system' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+            document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') setUsername();
+            });
+
+            // Atualiza a contagem de usuários periodicamente
+            setInterval(() => socket.emit('get_user_count'), 30000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HACKERBLACKHAT</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='static.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>HACKERBLACKHAT</h1>
+    <nav>
+      <a href="/">HOME</a>
+      <a href="/#upload">UPLOAD</a>
+      <a href="/chat">CHAT</a>
+      <a href="/#tools">TOOLS</a>
+      <a href="/#contact">CONTACT</a>
+    </nav>
+
+    <section id="home">
+      <div class="terminal">
+        <p>root@hackerblackhat:~$ echo "Bem-vindo ao underground hub"</p>
+      </div>
+    </section>
+
+    <section id="stats">
+      <div class="stat">
+        <h3 id="filesCount">{{ files|length }}</h3>
+        <p>ARQUIVOS UPLOADED</p>
+      </div>
+      <div class="stat">
+        <h3 id="usersOnline">1</h3>
+        <p>HACKERS ONLINE</p>
+      </div>
+      <div class="stat">
+        <h3 id="totalDownloads">0</h3>
+        <p>TOTAL DOWNLOADS</p>
+      </div>
+    </section>
+
+    <section id="upload">
+      <h2>📁 Upload de Arquivos</h2>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" multiple style="display:none;">
+        <p>Arraste arquivos aqui ou clique para selecionar</p>
+        <button onclick="document.getElementById('fileInput').click()">Selecionar Arquivos</button>
+      </div>
+      <div id="fileList">
+        {% for file in files %}
+        <div class="file-item">
+          <span class="icon">📄</span>
+          <div class="file-info">
+            <strong>{{ file }}</strong>
+          </div>
+          <div class="file-actions">
+            <a href="/downloads/{{ file }}" onclick="downloadFile('{{ file }}')">DOWNLOAD</a>
+            <button onclick="deleteFile('{{ file }}', this)">DELETE</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section id="chat">
+      <h2>💬 Hacker Chat Room</h2>
+      <p><a href="/chat">Entrar no Chat</a></p>
+    </section>
+
+    <section id="tools">
+      <h2>🛠️ Tools</h2>
+      <p>Repositório de ferramentas underground</p>
+    </section>
+
+    <section id="contact">
+      <h2>📡 Contato</h2>
+      <p>Entre em contato pelo canal seguro.</p>
+    </section>
+  </div>
+
+  <script>
+    const socket = io(); // conecta ao Flask
+
+    socket.on('connect', () => {
+      console.log('Conectado ao servidor SocketIO');
+    });
+
+    socket.on('user_count', (count) => {
+      document.getElementById('usersOnline').textContent = count;
+    });
+
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/upload', { method: 'POST', body: formData })
+          .then(res => res.text())
+          .then(txt => {
+            console.log(txt);
+            window.location.reload(); // recarrega lista
+          })
+          .catch(err => alert('Erro ao enviar: ' + err));
+      });
+    }
+
+    document.getElementById('fileInput').addEventListener('change', e => {
+      handleFiles(e.target.files);
+    });
+
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', e => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    function downloadFile(filename) {
+      const d = document.getElementById('totalDownloads');
+      d.textContent = (parseInt(d.textContent) + 1).toString();
+    }
+
+    function deleteFile(filename, btn) {
+      if(confirm('Deletar este arquivo?')) {
+        fetch(`/delete/${encodeURIComponent(filename)}`, { method:'DELETE' })
+          .then(res => res.json())
+          .then(data => {
+            if(data.status === 'ok') {
+              btn.closest('.file-item').remove();
+            } else {
+              alert(data.message);
+            }
+          });
+      }
+    }
+  </script>
+</body>
+</html>
