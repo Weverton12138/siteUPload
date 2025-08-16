@@ -10,7 +10,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # Mude para uma chave segura
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['METADATA_FILE'] = 'file_metadata.json'  # Arquivo para guardar info dos uploads
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+
 
 # Configurações do Admin
 ADMIN_USERNAME = "everton"       # Mude aqui
