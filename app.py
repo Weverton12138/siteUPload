@@ -267,8 +267,14 @@ def handle_get_user_count():
 # Main
 # ---------------------------
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("🚀 CodeShare Server Starting...")
     print(f"👑 Admin: {ADMIN_USERNAME}")
     print("🔒 Apenas admin pode deletar arquivos!")
-    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=5000,
+        debug=True,
+        allow_unsafe_werkzeug=True  # necessário p/ Flask-SocketIO + Werkzeug
+    )
