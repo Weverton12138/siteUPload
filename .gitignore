@@ -1,0 +1,6 @@
+venv/
+uploads/
+*.pyc
+__pycache__/
+.env
+file_metadata.json
