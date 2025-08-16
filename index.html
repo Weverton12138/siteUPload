@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackerBlackHat Matrix - Underground Hub</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Source+Code+Pro:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Matrix Rain Effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-size: 14px;
+            color: #00ff00;
+            animation: matrix-fall linear infinite;
+        }
+
+        @keyframes matrix-fall {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #001100, #003300);
+            padding: 1rem 0;
+            border-bottom: 2px solid #00ff00;
+            box-shadow: 0 2px 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            text-shadow: 0 0 10px #00ff00;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; }
+            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00; }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #00ff00;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-links a:hover::before {
+            left: 100%;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Terminal Window */
+        .terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            margin: 2rem 0;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .terminal-header {
+            background: #00ff00;
+            color: #000;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #000;
+        }
+
+        .terminal-content {
+            padding: 1.5rem;
+        }
+
+        /* Section Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #00ff00;
+            font-family: inherit;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active,
+        .tab:hover {
+            border-bottom-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        /* Content Sections */
+        .section {
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Upload Section */
+        .upload-area {
+            border: 2px dashed #00ff00;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            margin: 1rem 0;
+            background: rgba(0, 255, 0, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-style: solid;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .upload-area.dragover {
+            background: rgba(0, 255, 0, 0.2);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 0.8rem 2rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        /* File List */
+        .file-list {
+            margin-top: 2rem;
+        }
+
+        .file-item {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-left: 4px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-icon {
+            font-size: 1.5rem;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Chat Section */
+        .chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            padding: 1rem;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            max-height: 300px;
+        }
+
+        .message {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .message-user {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .message-time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 0.8rem;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .stat-label {
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                padding: 0.8rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <div class="matrix-bg" id="matrixBg"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">HACKERBLACKHAT</div>
+            <ul class="nav-links">
+                <li><a href="#home">HOME</a></li>
+                <li><a href="#upload">UPLOAD</a></li>
+                <li><a href="#chat">CHAT</a></li>
+                <li><a href="#tools">TOOLS</a></li>
+                <li><a href="#contact">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome Terminal -->
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                </div>
+                <span>root@hackerblackhat:~$</span>
+            </div>
+            <div class="terminal-content">
+                <div id="terminal-text"></div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="filesCount">0</div>
+                <div class="stat-label">ARQUIVOS UPLOADED</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="usersOnline">1</div>
+                <div class="stat-label">HACKERS ONLINE</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalDownloads">0</div>
+                <div class="stat-label">TOTAL DOWNLOADS</div>
+            </div>
+        </div>
+
+        <!-- Main Sections -->
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button"></div>
+                </div>
+                <span>UNDERGROUND HUB - SELECT MODULE</span>
+            </div>
+            <div class="terminal-content">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-section="upload">📱 APK UPLOAD</button>
+                    <button class="tab" data-section="software">💻 SOFTWARE</button>
+                    <button class="tab" data-section="scripts">📜 SCRIPTS</button>
+                    <button class="tab" data-section="games">🎮 GAMES</button>
+                    <button class="tab" data-section="chat">💬 CHAT ROOM</button>
+                </div>
+
+                <!-- Upload Section -->
+                <div id="upload" class="section active">
+                    <h2>📱 ANDROID APK UPLOAD</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📱</div>
+                        <h3>DRAG & DROP APK FILES</h3>
+                        <p>ou clique para selecionar arquivos</p>
+                        <input type="file" class="file-input" id="fileInput" accept=".apk" multiple>
+                        <button class="btn" onclick="document.getElementById('fileInput').click()">SELECIONAR ARQUIVOS</button>
+                    </div>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <!-- Software Section -->
+                <div id="software" class="section">
+                    <h2>💻 SOFTWARE UPLOAD</h2>
+                    <div class="upload-area">
+                        <div class="upload-icon">💻</div>
+                        <h3>UPLOAD DE SOFTWARE</h3>
+                        <p>Executáveis, instaladores e ferramentas</p>
+                        <input type="file" class="file-input" accept=".exe,.msi,.deb,.rpm,.dmg,.zip,.rar">
+                        <button class="btn">SELECIONAR SOFTWARE</button>
+                    </div>
+                </div>
+
+                <!-- Scripts Section -->
+                <div id="scripts" class="section">
+                    <h2>📜 SCRIPT REPOSITORY</h2>
+                    <div class="upload-area">
+                        <div class="upload-icon">📜</div>
+                        <h3>UPLOAD DE SCRIPTS</h3>
+                        <p>Python, Bash, PowerShell, JavaScript</p>
+                        <input type="file" class="file-input" accept=".py,.sh,.ps1,.js,.bat,.cmd,.pl">
+                        <button class="btn">UPLOAD SCRIPT</button>
+                    </div>
+                </div>
+
+                <!-- Games Section -->
+                <div id="games" class="section">
+                    <h2>🎮 GAMES REPOSITORY</h2>
+                    <div class="upload-area">
+                        <div class="upload-icon">🎮</div>
+                        <h3>UPLOAD DE GAMES</h3>
+                        <p>Jogos, ROMs e emuladores</p>
+                        <input type="file" class="file-input" accept=".zip,.rar,.7z,.iso">
+                        <button class="btn">UPLOAD GAME</button>
+                    </div>
+                </div>
+
+                <!-- Chat Section -->
+                <div id="chat" class="section">
+                    <h2>💬 HACKER CHAT ROOM</h2>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message">
+                                <div class="message-user">SYSTEM</div>
+                                <div>Bem-vindo ao chat underground! Mantenha a segurança em primeiro lugar.</div>
+                                <div class="message-time">00:00</div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua mensagem..." maxlength="200">
+                            <button class="btn" onclick="sendMessage()">ENVIAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix Rain Effect
+        function createMatrixRain() {
+            const matrixBg = document.getElementById('matrixBg');
+            const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const column = document.createElement('div');
+                    column.className = 'matrix-column';
+                    column.style.left = Math.random() * 100 + '%';
+                    column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    column.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    let text = '';
+                    for (let j = 0; j < 30; j++) {
+                        text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+                    }
+                    column.innerHTML = text;
+                    
+                    matrixBg.appendChild(column);
+                    
+                    setTimeout(() => {
+                        if (column.parentNode) {
+                            column.parentNode.removeChild(column);
+                        }
+                    }, 8000);
+                }, i * 200);
+            }
+        }
+
+        // Start matrix effect
+        createMatrixRain();
+        setInterval(createMatrixRain, 5000);
+
+        // Terminal typing effect
+        const terminalText = document.getElementById('terminal-text');
+        const messages = [
+            'Inicializando sistema...',
+            'Conectando ao servidor underground...',
+            'Acesso liberado - Bem-vindo hacker!',
+            'Sistema pronto para upload e chat',
+            '> Mantenha a segurança sempre em primeiro lugar',
+            '> Use VPN e proxies para máxima proteção'
+        ];
+
+        let messageIndex = 0;
+        let charIndex = 0;
+
+        function typeMessage() {
+            if (messageIndex < messages.length) {
+                if (charIndex < messages[messageIndex].length) {
+                    terminalText.innerHTML += messages[messageIndex].charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeMessage, 50);
+                } else {
+                    terminalText.innerHTML += '<br>';
+                    messageIndex++;
+                    charIndex = 0;
+                    setTimeout(typeMessage, 1000);
+                }
+            }
+        }
+
+        typeMessage();
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetSection = tab.getAttribute('data-section');
+                
+                // Remove active class from all tabs and sections
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked tab and target section
+                tab.classList.add('active');
+                document.getElementById(targetSection).classList.add('active');
+            });
+        });
+
+        // File Upload Functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        let uploadedFiles = [];
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const fileObj = {
+                    name: file.name,
+                    size: formatFileSize(file.size),
+                    type: file.type,
+                    uploadTime: new Date().toLocaleTimeString()
+                };
+                uploadedFiles.push(fileObj);
+                addFileToList(fileObj);
+            });
+            updateStats();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function addFileToList(file) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <div class="file-icon">📱</div>
+                    <div>
+                        <div><strong>${file.name}</strong></div>
+                        <div style="opacity: 0.7; font-size: 0.9rem;">${file.size} - ${file.uploadTime}</div>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <button class="btn btn-small" onclick="downloadFile('${file.name}')">DOWNLOAD</button>
+                    <button class="btn btn-small" onclick="deleteFile('${file.name}')">DELETE</button>
+                </div>
+            `;
+            fileList.appendChild(fileItem);
+        }
+
+        function downloadFile(filename) {
+            alert('Download iniciado: ' + filename);
+            updateDownloadCount();
+        }
+
+        function deleteFile(filename) {
+            if (confirm('Deletar arquivo: ' + filename + '?')) {
+                uploadedFiles = uploadedFiles.filter(f => f.name !== filename);
+                renderFileList();
+                updateStats();
+            }
+        }
+
+        function renderFileList() {
+            fileList.innerHTML = '';
+            uploadedFiles.forEach(file => {
+                addFileToList(file);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('filesCount').textContent = uploadedFiles.length;
+        }
+
+        function updateDownloadCount() {
+            const current = parseInt(document.getElementById('totalDownloads').textContent);
+            document.getElementById('totalDownloads').textContent = current + 1;
+        }
+
+        // Chat Functionality
+        let chatMessages = [];
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const messageObj = {
+                    user: 'HACKER_' + Math.floor(Math.random() * 1000),
+                    text: message,
+                    time: new Date().toLocaleTimeString()
+                };
+                
+                chatMessages.push(messageObj);
+                addMessageToChat(messageObj);
+                input.value = '';
+            }
+        }
+
+        function addMessageToChat(message) {
+            const chatContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <div class="message-user">${message.user}</div>
+                <div>${message.text}</div>
+                <div class="message-time">${message.time}</div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Enter key to send message
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Simulate online users
+        setInterval(() => {
+            const count = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('usersOnline').textContent = count;
+        }, 30000);
+
+        // Auto-scroll chat and add system messages
+        setTimeout(() => {
+            addMessageToChat({
+                user: 'SYSTEM',
+                text: 'Lembre-se: Não compartilhe informações pessoais',
+                time: new Date().toLocaleTimeString()
+            });
+        }, 10000);
+    </script>
+</body>
+</html>
